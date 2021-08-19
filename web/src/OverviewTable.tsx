@@ -39,11 +39,11 @@ import {
   AccordionDetailsStyleResetMixin,
   AccordionStyleResetMixin,
   AccordionSummaryStyleResetMixin,
-  ResourceGroupNameMixin,
   ResourceGroupSummaryIcon,
   ResourceGroupSummaryMixin,
 } from "./ResourceGroups"
 import { useResourceNav } from "./ResourceNav"
+import { TableGroupStatusSummary } from "./ResourceStatusSummary"
 import { useStarredResources } from "./StarredResourcesContext"
 import { buildStatus, runtimeStatus } from "./status"
 import {
@@ -103,7 +103,8 @@ export const OverviewGroup = styled(Accordion)`
 
   /* Set specific margins for table view */
   &.MuiAccordion-root,
-  &.MuiAccordion-root.Mui-expanded {
+  &.MuiAccordion-root.Mui-expanded,
+  &.MuiAccordion-root.Mui-expanded:first-child {
     margin: ${SizeUnit(1 / 2)};
   }
 `
@@ -118,9 +119,7 @@ export const OverviewGroupSummary = styled(AccordionSummary)`
 `
 
 export const OverviewGroupName = styled.span`
-  ${ResourceGroupNameMixin}
-
-  padding-left: ${SizeUnit(1 / 3)};
+  padding: 0 ${SizeUnit(1 / 3)};
 `
 
 export const OverviewGroupDetails = styled(AccordionDetails)`
@@ -749,6 +748,10 @@ function TableGroup(props: { label: string; data: RowValues[] }) {
       <OverviewGroupSummary id={labelNameId}>
         <ResourceGroupSummaryIcon role="presentation" />
         <OverviewGroupName>{formattedLabel}</OverviewGroupName>
+        <TableGroupStatusSummary
+          aria-label={`Status summary for ${props.label} group`}
+          resources={props.data}
+        />
       </OverviewGroupSummary>
       <OverviewGroupDetails>
         <Table columns={columnDefs} data={props.data} isGroupView />

@@ -22,6 +22,7 @@ import OverviewTable, {
   TableGroupedByLabels,
   TableNameColumn,
 } from "./OverviewTable"
+import { TableGroupStatusSummary } from "./ResourceStatusSummary"
 import { nResourceView, nResourceWithLabelsView, oneButton } from "./testdata"
 
 it("shows buttons on the appropriate resources", () => {
@@ -53,10 +54,16 @@ it("shows buttons on the appropriate resources", () => {
 describe("overview table with groups", () => {
   let view: Proto.webviewView
   let wrapper: ReactWrapper<OverviewTableProps, typeof TableGroupedByLabels>
+  let resources: GroupByLabelView<RowValues>
 
   beforeEach(() => {
     view = nResourceWithLabelsView(5)
     wrapper = mount(<TableGroupedByLabels view={view} />)
+    resources = resourcesToTableCells(
+      view.uiResources,
+      view.uiButtons,
+      new LogStore()
+    )
 
     mockAnalyticsCalls()
   })
@@ -69,16 +76,6 @@ describe("overview table with groups", () => {
   //       If there are labels and feature is enabled, it renders table with groups
 
   describe("display", () => {
-    let resources: GroupByLabelView<RowValues>
-
-    beforeEach(() => {
-      resources = resourcesToTableCells(
-        view.uiResources,
-        view.uiButtons,
-        new LogStore()
-      )
-    })
-
     it("renders each label group in order", () => {
       const { labels: sortedLabels } = resources
       const groupNames = wrapper.find(OverviewGroupName)
@@ -153,6 +150,18 @@ describe("overview table with groups", () => {
       })
 
       expect(actualResourcesFromTable).toEqual(expectedResourcesFromLabelGroups)
+    })
+  })
+
+  describe("resource status summary", () => {
+    it("renders summaries for each label group", () => {
+      const summaries = wrapper.find(TableGroupStatusSummary)
+      const totalLabelCount =
+        resources.labels.length +
+        (resources.tiltfile.length ? 1 : 0) +
+        (resources.unlabeled.length ? 1 : 0)
+
+      expect(summaries.length).toBe(totalLabelCount)
     })
   })
 
